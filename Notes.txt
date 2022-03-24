@@ -1,0 +1,24 @@
+1. To run RabbitMQ
+
+	docker run -d --hostname my-rabbit --name some-rabbit -p 15672:15672 -p 5672:5672 rabbitmq:3-management
+
+
+2. Make a Queue, an Exchange, and bind them together.
+
+3. Why we need a Messaging Queue when we can simply send an http post request.
+
+	- Suppose we have a hotel application.
+	- We have two microservices a) One to book a room	b) One to generate bill in pdf and email the bill to the customer.
+	- Now we have two approaches:
+		a) We can send the Bill object from ms-1 to ms-2 by a POST request with the help of RestTemplate.
+		b) We can send the Bill object in a message queue, which the ms-2 will listen to and do its job.
+	
+	- The problem with the first approach is that, it is very much possible that the ms-2 is under maintainence and is 
+	  currently down. So you will not be able to send that Bill object to ms-2. Hence that billing data is lost forever.
+	  The customer will not get the Bill pdf and he won't receive the email. Hence, even with a microservice architecture,
+	  where we want our services to be decoupled, in reality they aren't.
+	
+	- But with the help of a MQ. ms-1 will send the Bill object to the queue and its job is done. ms-1 need not worry 
+	  about anything else.
+	- This message(Bill object) will be stored in our queue till ms-2 has consumed it. So even if ms-2 is down, it will 
+       consume it when it is running up again and the customer will eventually get the Bill :)
